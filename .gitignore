@@ -24,9 +24,13 @@ Objects/
 /controllers/
 /sql/
 /db/
-/templates/
 /platforms/
 /logs/
+
+# But keep template library (source templates, not generated)
+!/templates/
+/templates/*.html
+/templates/*.htm
 
 # OS specific
 Thumbs.db

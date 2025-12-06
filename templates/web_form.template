@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<!-- Web Form for {{ModelName}} Create/Edit -->
+<!--
+TEMPLATE PLACEHOLDERS:
+ {{ModelName}} - The model name in PascalCase (e.g., User, Product)
+ {{model_name}} - The snake_case version for URLs and IDs (e.g., user, product)
+ {{modelName}} - The camelCase version for JavaScript variables (e.g., user, product)
+ {{form_fields}} - Will be expanded to form input fields for each model field
+ {{validation_rules}} - Will be expanded to JavaScript validation rules
+ {{field_bindings}} - Will be expanded to form data binding code
+
+TOKEN REPLACEMENT:
+ - TemplateEngine.EvaluateTemplate() replaces all {{placeholder}} tokens
+ - Form fields are generated based on field type and constraints
+ - Validation rules check required fields and data types
+ - Field bindings map form inputs to model properties
+
+jRDC2 INTEGRATION:
+ - Form submission sends data to API endpoint
+ - POST /api/{{model_name}} for create
+ - PUT /api/{{model_name}}/:id for update
+ - API handler uses jRDC2 to persist to database
+ - Form validates on client side before submission
+
+FORM FIELD TYPES:
+ - string -> text input
+ - int/long/double -> number input
+ - boolean -> checkbox
+ - date -> date input
+ - text -> textarea
+ - email -> email input
+-->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ModelName}} Form</title>
+    <link rel="stylesheet" href="/assets/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header Section -->
+        <div class="page-header">
+            <h1 id="formTitle">Create {{ModelName}}</h1>
+            <div class="header-actions">
+                <button class="btn btn-secondary" onclick="window.location.href='/web/{{model_name}}'">
+                    <span class="icon">←</span> Back to List
+                </button>
+            </div>
+        </div>
+
+        <!-- Form Section -->
+        <div class="form-container">
+            <form id="{{model_name}}Form" onsubmit="handleSubmit(event)">
+                <input type="hidden" id="recordId" name="id">
+
+                <!-- Generated form fields -->
+{{form_fields}}
+
+                <!-- Metadata fields (read-only) -->
+                <div class="form-section">
+                    <h3>Record Information</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="createdAt">Created At</label>
+                            <input type="text" id="createdAt" name="created_at" class="form-control" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="updatedAt">Updated At</label>
+                            <input type="text" id="updatedAt" name="updated_at" class="form-control" readonly>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary" id="btnSubmit">
+                        <span class="icon">✓</span> Save
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="resetForm()">
+                        <span class="icon">↻</span> Reset
+                    </button>
+                    <button type="button" class="btn btn-danger" onclick="window.location.href='/web/{{model_name}}'">
+                        <span class="icon">✕</span> Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Include JavaScript -->
+    <script src="/assets/js/common.js"></script>
+    <script src="/assets/js/api.js"></script>
+    <script>
+        // Check if editing existing record
+        const urlParams = new URLSearchParams(window.location.search);
+        const recordId = getRecordIdFromUrl();
+        let isEditMode = false;
+
+        // Load data on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            if (recordId) {
+                isEditMode = true;
+                document.getElementById('formTitle').textContent = 'Edit {{ModelName}}';
+                loadRecord(recordId);
+            }
+        });
+
+        // Get record ID from URL path (e.g., /web/{{model_name}}/123/edit)
+        function getRecordIdFromUrl() {
+            const pathParts = window.location.pathname.split('/');
+            const index = pathParts.indexOf('{{model_name}}');
+            if (index >= 0 && pathParts.length > index + 1) {
+                const id = pathParts[index + 1];
+                return id !== 'new' ? id : null;
+            }
+            return null;
+        }
+
+        // Load existing record for editing
+        async function loadRecord(id) {
+            try {
+                const record = await API.getById('{{model_name}}', id);
+                populateForm(record);
+            } catch (error) {
+                console.error('Error loading record:', error);
+                showError('Failed to load record');
+            }
+        }
+
+        // Populate form with record data
+        function populateForm(record) {
+            document.getElementById('recordId').value = record.id || '';
+            
+            // Populate generated fields
+{{field_bindings}}
+            
+            // Populate metadata fields
+            if (record.created_at) {
+                document.getElementById('createdAt').value = formatDate(record.created_at);
+            }
+            if (record.updated_at) {
+                document.getElementById('updatedAt').value = formatDate(record.updated_at);
+            }
+        }
+
+        // Handle form submission
+        async function handleSubmit(event) {
+            event.preventDefault();
+
+            // Validate form
+            if (!validateForm()) {
+                showError('Please fix validation errors');
+                return;
+            }
+
+            // Collect form data
+            const formData = collectFormData();
+
+            try {
+                let result;
+                if (isEditMode && recordId) {
+                    // Update existing record
+                    result = await API.update('{{model_name}}', recordId, formData);
+                    showSuccess('{{ModelName}} updated successfully');
+                } else {
+                    // Create new record
+                    result = await API.create('{{model_name}}', formData);
+                    showSuccess('{{ModelName}} created successfully');
+                }
+
+                // Redirect to list page after short delay
+                setTimeout(() => {
+                    window.location.href = '/web/{{model_name}}';
+                }, 1500);
+            } catch (error) {
+                console.error('Error saving record:', error);
+                showError('Failed to save {{ModelName}}');
+            }
+        }
+
+        // Collect form data
+        function collectFormData() {
+            const formData = {};
+            const form = document.getElementById('{{model_name}}Form');
+            const formElements = form.elements;
+
+            for (let i = 0; i < formElements.length; i++) {
+                const element = formElements[i];
+                if (element.name && element.name !== 'id') {
+                    if (element.type === 'checkbox') {
+                        formData[element.name] = element.checked;
+                    } else if (element.type !== 'button' && element.type !== 'submit') {
+                        formData[element.name] = element.value;
+                    }
+                }
+            }
+
+            return formData;
+        }
+
+        // Validate form
+        function validateForm() {
+            let isValid = true;
+            const form = document.getElementById('{{model_name}}Form');
+
+            // Clear previous validation errors
+            const errorMessages = form.querySelectorAll('.error-message');
+            errorMessages.forEach(msg => msg.remove());
+
+            // Validation rules (generated from field definitions)
+{{validation_rules}}
+
+            // Check HTML5 validation
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                isValid = false;
+            }
+
+            return isValid;
+        }
+
+        // Show validation error
+        function showValidationError(fieldId, message) {
+            const field = document.getElementById(fieldId);
+            if (field) {
+                field.classList.add('error');
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'error-message';
+                errorDiv.textContent = message;
+                field.parentNode.appendChild(errorDiv);
+            }
+        }
+
+        // Reset form
+        function resetForm() {
+            document.getElementById('{{model_name}}Form').reset();
+            // Clear validation errors
+            const errorMessages = document.querySelectorAll('.error-message');
+            errorMessages.forEach(msg => msg.remove());
+            const errorFields = document.querySelectorAll('.error');
+            errorFields.forEach(field => field.classList.remove('error'));
+        }
+
+        // Format date
+        function formatDate(timestamp) {
+            if (!timestamp) return '';
+            const date = new Date(timestamp);
+            return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+        }
+
+        // Show success message
+        function showSuccess(message) {
+            alert(message); // Replace with better notification system
+        }
+
+        // Show error message
+        function showError(message) {
+            alert(message); // Replace with better notification system
+        }
+    </script>
+</body>
+</html>

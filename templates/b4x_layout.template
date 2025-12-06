@@ -1,0 +1,180 @@
+'B4X Layout Definition for {{ModelName}} Form
+'
+'TEMPLATE PLACEHOLDERS:
+' {{ModelName}} - The model name in PascalCase (e.g., User, Product)
+' {{model_name}} - The snake_case version (e.g., user, product)
+' {{layout_controls}} - Will be expanded to layout control definitions
+'
+'TOKEN REPLACEMENT:
+' - TemplateEngine.EvaluateTemplate() replaces all {{placeholder}} tokens
+' - Layout controls are generated based on field types:
+'   * string -> EditText
+'   * int/long/double -> EditText with number input
+'   * boolean -> CheckBox
+'   * date -> DatePicker
+'   * text -> EditText (multiline)
+'
+'LAYOUT STRUCTURE:
+' This is a JSON-like format for B4X layout definition
+' Visual Designer will interpret this to create UI layout
+'
+'CONTROL TYPES:
+' - Panel: Container for other views
+' - Label: Text display
+' - EditText: Single-line text input
+' - TextView: Multi-line text input
+' - CheckBox: Boolean toggle
+' - Button: Action button
+' - ScrollView: Scrollable container
+'
+'jRDC2 FORM BINDINGS:
+' - Each input field corresponds to a database column
+' - Form submission triggers controller CRUD operation
+' - Controller uses jRDC2 to persist to database
+
+{
+  "layout": "{{model_name}}_form",
+  "version": "1.0",
+  "type": "B4XPage",
+  "views": [
+    {
+      "type": "Panel",
+      "name": "pnlMain",
+      "properties": {
+        "left": 0,
+        "top": 0,
+        "width": "100%w",
+        "height": "100%h",
+        "color": "#FFFFFF"
+      }
+    },
+    {
+      "type": "ScrollView",
+      "name": "svForm",
+      "parent": "pnlMain",
+      "properties": {
+        "left": 10,
+        "top": 10,
+        "width": "100%w - 20dip",
+        "height": "100%h - 70dip"
+      }
+    },
+    {
+      "type": "Label",
+      "name": "lblTitle",
+      "parent": "svForm",
+      "properties": {
+        "text": "{{ModelName}} Form",
+        "left": 10,
+        "top": 10,
+        "width": "100%w - 20dip",
+        "height": 40,
+        "textSize": 20,
+        "textColor": "#333333",
+        "gravity": "CENTER"
+      }
+    },
+    
+    {
+      "_comment": "Generated form fields - one section per model field",
+      "_template": "{{layout_controls}}"
+    },
+    
+    {
+      "type": "Panel",
+      "name": "pnlButtons",
+      "parent": "pnlMain",
+      "properties": {
+        "left": 10,
+        "top": "100%h - 60dip",
+        "width": "100%w - 20dip",
+        "height": 50,
+        "color": "#F5F5F5"
+      }
+    },
+    {
+      "type": "Button",
+      "name": "btnSave",
+      "parent": "pnlButtons",
+      "properties": {
+        "text": "Save",
+        "left": 10,
+        "top": 5,
+        "width": "25%w - 15dip",
+        "height": 40,
+        "textColor": "#FFFFFF",
+        "color": "#4CAF50"
+      }
+    },
+    {
+      "type": "Button",
+      "name": "btnCancel",
+      "parent": "pnlButtons",
+      "properties": {
+        "text": "Cancel",
+        "left": "25%w + 5dip",
+        "top": 5,
+        "width": "25%w - 15dip",
+        "height": 40,
+        "textColor": "#FFFFFF",
+        "color": "#9E9E9E"
+      }
+    },
+    {
+      "type": "Button",
+      "name": "btnDelete",
+      "parent": "pnlButtons",
+      "properties": {
+        "text": "Delete",
+        "left": "50%w + 5dip",
+        "top": 5,
+        "width": "25%w - 15dip",
+        "height": 40,
+        "textColor": "#FFFFFF",
+        "color": "#F44336"
+      }
+    },
+    {
+      "type": "Button",
+      "name": "btnNew",
+      "parent": "pnlButtons",
+      "properties": {
+        "text": "New",
+        "left": "75%w + 5dip",
+        "top": 5,
+        "width": "25%w - 15dip",
+        "height": 40,
+        "textColor": "#FFFFFF",
+        "color": "#2196F3"
+      }
+    }
+  ]
+}
+
+'Example of generated field control (for string field named "title"):
+'{
+'  "type": "Label",
+'  "name": "lblTitle",
+'  "parent": "svForm",
+'  "properties": {
+'    "text": "Title",
+'    "left": 10,
+'    "top": 60,
+'    "width": "100%w - 20dip",
+'    "height": 30,
+'    "textSize": 14
+'  }
+'},
+'{
+'  "type": "EditText",
+'  "name": "txtTitle",
+'  "parent": "svForm",
+'  "properties": {
+'    "hint": "Enter title",
+'    "left": 10,
+'    "top": 90,
+'    "width": "100%w - 20dip",
+'    "height": 50,
+'    "textSize": 14
+'  }
+'}
