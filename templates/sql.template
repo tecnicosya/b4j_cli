@@ -1,0 +1,62 @@
+-- SQL Schema for {{ModelName}} model
+--
+-- TEMPLATE PLACEHOLDERS:
+-- {{ModelName}} - The model name in PascalCase (e.g., User, Product)
+-- {{model_name}} - The table name in snake_case (e.g., user, product)
+-- {{table_name}} - Same as {{model_name}}, used for table name
+-- {{sql_columns}} - Will be expanded to column definitions from field list
+--
+-- TOKEN REPLACEMENT:
+-- - TemplateEngine.EvaluateTemplate() replaces all {{placeholder}} tokens
+-- - Field definitions are converted to SQL column definitions via GetSQLType()
+-- - Required fields get NOT NULL constraint
+--
+-- jRDC2 INTEGRATION:
+-- This schema is designed to work with jRDC2 (Remote Database Connector)
+-- Define corresponding queries in jRDC2 config file:
+--
+-- sql.select_all_{{model_name}}=SELECT * FROM {{model_name}} ORDER BY created_at DESC
+-- sql.select_{{model_name}}_by_id=SELECT * FROM {{model_name}} WHERE id=?
+-- sql.insert_{{model_name}}=INSERT INTO {{model_name}} (field1, field2, ...) VALUES (?, ?, ...)
+-- sql.update_{{model_name}}=UPDATE {{model_name}} SET field1=?, field2=?, updated_at=CURRENT_TIMESTAMP WHERE id=?
+-- sql.delete_{{model_name}}=DELETE FROM {{model_name}} WHERE id=?
+
+-- Drop table if exists (use with caution in production)
+-- DROP TABLE IF EXISTS {{model_name}};
+
+-- Create table for {{ModelName}}
+CREATE TABLE IF NOT EXISTS {{model_name}} (
+    -- Primary key and metadata columns
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    -- Custom fields from model definition
+{{sql_columns}}
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Create indexes for better query performance
+CREATE INDEX idx_{{model_name}}_created_at ON {{model_name}}(created_at);
+CREATE INDEX idx_{{model_name}}_updated_at ON {{model_name}}(updated_at);
+
+-- Sample jRDC2 query definitions (add to your config.properties)
+-- #Select all {{ModelName}} records
+-- sql.select_all_{{model_name}}=SELECT * FROM {{model_name}} ORDER BY created_at DESC
+--
+-- #Select {{ModelName}} by ID
+-- sql.select_{{model_name}}_by_id=SELECT * FROM {{model_name}} WHERE id=?
+--
+-- #Count all {{ModelName}} records
+-- sql.count_{{model_name}}=SELECT COUNT(*) as total FROM {{model_name}}
+--
+-- #Insert new {{ModelName}} record
+-- sql.insert_{{model_name}}=INSERT INTO {{model_name}} (field1, field2) VALUES (?, ?)
+--
+-- #Update {{ModelName}} record
+-- sql.update_{{model_name}}=UPDATE {{model_name}} SET field1=?, field2=?, updated_at=CURRENT_TIMESTAMP WHERE id=?
+--
+-- #Delete {{ModelName}} record
+-- sql.delete_{{model_name}}=DELETE FROM {{model_name}} WHERE id=?
+
+-- Sample data (optional - remove in production)
+-- INSERT INTO {{model_name}} (id, field1, field2) VALUES (1, 'sample', 'data');

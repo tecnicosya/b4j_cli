@@ -1,0 +1,302 @@
+'jServer Handler for {{ModelName}} - REST API endpoints
+'
+'TEMPLATE PLACEHOLDERS:
+' {{ModelName}} - The model name in PascalCase (e.g., User, Product)
+' {{model_name}} - The snake_case version for URLs and database tables (e.g., user, product)
+' {{modelName}} - The camelCase version for variables (e.g., user, product)
+'
+'TOKEN REPLACEMENT:
+' - TemplateEngine.EvaluateTemplate() replaces all {{placeholder}} tokens
+' - Handler implements REST API for CRUD operations
+' - Uses jRDC2 to communicate with database
+'
+'REST API ENDPOINTS:
+' - GET    /api/{{model_name}}      - List all records
+' - GET    /api/{{model_name}}/:id  - Get single record by ID
+' - POST   /api/{{model_name}}      - Create new record
+' - PUT    /api/{{model_name}}/:id  - Update existing record
+' - DELETE /api/{{model_name}}/:id  - Delete record
+'
+'jRDC2 INTEGRATION:
+' This handler uses jRDC2 (Remote Database Connector) for database operations:
+' - Initialize RDC connection in Initialize() method
+' - Execute queries using predefined command names
+' - Commands should be defined in jRDC2 config.properties:
+'   * sql.select_all_{{model_name}}=SELECT * FROM {{model_name}}
+'   * sql.select_{{model_name}}_by_id=SELECT * FROM {{model_name}} WHERE id=?
+'   * sql.insert_{{model_name}}=INSERT INTO {{model_name}} (...) VALUES (...)
+'   * sql.update_{{model_name}}=UPDATE {{model_name}} SET ... WHERE id=?
+'   * sql.delete_{{model_name}}=DELETE FROM {{model_name}} WHERE id=?
+'
+'RESPONSE FORMAT:
+' All responses are JSON with appropriate HTTP status codes:
+' - 200 OK - Successful GET/PUT
+' - 201 Created - Successful POST
+' - 204 No Content - Successful DELETE
+' - 400 Bad Request - Invalid input
+' - 404 Not Found - Record not found
+' - 500 Internal Server Error - Server error
+
+Sub Class_Globals
+    Private rdcConnector As RDCConnector
+    Private controller As Object
+End Sub
+
+Sub Initialize
+    'Initialize jRDC2 connector
+    'rdcConnector.Initialize2(Me, "http://localhost:17178/rdc", "MyRDC")
+    
+    'Initialize controller
+    'controller = {{ModelName}}Controller
+    'controller.InitializeWithDB(rdcConnector)
+    
+    Log("{{ModelName}}Handler initialized")
+End Sub
+
+'Main request handler - routes to appropriate method based on HTTP method
+Sub Handle(req As ServletRequest, resp As ServletResponse)
+    Try
+        Select req.Method
+            Case "GET"
+                HandleGet(req, resp)
+            Case "POST"
+                HandlePost(req, resp)
+            Case "PUT"
+                HandlePut(req, resp)
+            Case "DELETE"
+                HandleDelete(req, resp)
+            Case Else
+                SendResponse(resp, 405, CreateErrorResponse("Method not allowed"))
+        End Select
+    Catch
+        Log("Error handling request: " & LastException.Message)
+        SendResponse(resp, 500, CreateErrorResponse("Internal server error"))
+    End Try
+End Sub
+
+'Handle GET requests - list all or get by ID
+'GET /api/{{model_name}} - List all records
+'GET /api/{{model_name}}/:id - Get single record
+Sub HandleGet(req As ServletRequest, resp As ServletResponse)
+    Try
+        Dim path As String = req.RequestURI
+        Dim id As String = ExtractIdFromPath(path)
+        
+        If id <> "" Then
+            'Get single record by ID
+            GetById(id, resp)
+        Else
+            'List all records
+            GetAll(resp)
+        End If
+    Catch
+        Log("Error in HandleGet: " & LastException.Message)
+        SendResponse(resp, 500, CreateErrorResponse("Error retrieving data"))
+    End Try
+End Sub
+
+'Handle POST requests - create new record
+'POST /api/{{model_name}}
+Sub HandlePost(req As ServletRequest, resp As ServletResponse)
+    Try
+        'Parse request body
+        Dim body As String = GetRequestBody(req)
+        Dim json As JSONParser
+        json.Initialize(body)
+        Dim data As Map = json.NextObject
+        
+        'Validate required fields
+        If ValidateCreateData(data) = False Then
+            SendResponse(resp, 400, CreateErrorResponse("Missing required fields"))
+            Return
+        End If
+        
+        'Create record using jRDC2
+        'Dim cmd As DBCommand
+        'cmd.Initialize
+        'cmd.Name = "insert_{{model_name}}"
+        'cmd.Parameters = Array As Object(field1, field2, ...)
+        'Dim result As Boolean = controller.Create(data)
+        
+        'If result Then
+        '    SendResponse(resp, 201, CreateSuccessResponse("Record created"))
+        'Else
+        '    SendResponse(resp, 500, CreateErrorResponse("Failed to create record"))
+        'End If
+        
+        'Temporary response
+        SendResponse(resp, 201, CreateSuccessResponse("Record created"))
+    Catch
+        Log("Error in HandlePost: " & LastException.Message)
+        SendResponse(resp, 500, CreateErrorResponse("Error creating record"))
+    End Try
+End Sub
+
+'Handle PUT requests - update existing record
+'PUT /api/{{model_name}}/:id
+Sub HandlePut(req As ServletRequest, resp As ServletResponse)
+    Try
+        Dim path As String = req.RequestURI
+        Dim id As String = ExtractIdFromPath(path)
+        
+        If id = "" Then
+            SendResponse(resp, 400, CreateErrorResponse("Record ID required"))
+            Return
+        End If
+        
+        'Parse request body
+        Dim body As String = GetRequestBody(req)
+        Dim json As JSONParser
+        json.Initialize(body)
+        Dim data As Map = json.NextObject
+        
+        'Update record using jRDC2
+        'Dim cmd As DBCommand
+        'cmd.Initialize
+        'cmd.Name = "update_{{model_name}}"
+        'cmd.Parameters = Array As Object(field1, field2, ..., id)
+        'Dim result As Boolean = controller.Update(id, data)
+        
+        'If result Then
+        '    SendResponse(resp, 200, CreateSuccessResponse("Record updated"))
+        'Else
+        '    SendResponse(resp, 404, CreateErrorResponse("Record not found"))
+        'End If
+        
+        'Temporary response
+        SendResponse(resp, 200, CreateSuccessResponse("Record updated"))
+    Catch
+        Log("Error in HandlePut: " & LastException.Message)
+        SendResponse(resp, 500, CreateErrorResponse("Error updating record"))
+    End Try
+End Sub
+
+'Handle DELETE requests - delete record
+'DELETE /api/{{model_name}}/:id
+Sub HandleDelete(req As ServletRequest, resp As ServletResponse)
+    Try
+        Dim path As String = req.RequestURI
+        Dim id As String = ExtractIdFromPath(path)
+        
+        If id = "" Then
+            SendResponse(resp, 400, CreateErrorResponse("Record ID required"))
+            Return
+        End If
+        
+        'Delete record using jRDC2
+        'Dim cmd As DBCommand
+        'cmd.Initialize
+        'cmd.Name = "delete_{{model_name}}"
+        'cmd.Parameters = Array As Object(id)
+        'Dim result As Boolean = controller.Delete(id)
+        
+        'If result Then
+        '    SendResponse(resp, 204, "")
+        'Else
+        '    SendResponse(resp, 404, CreateErrorResponse("Record not found"))
+        'End If
+        
+        'Temporary response
+        SendResponse(resp, 204, "")
+    Catch
+        Log("Error in HandleDelete: " & LastException.Message)
+        SendResponse(resp, 500, CreateErrorResponse("Error deleting record"))
+    End Try
+End Sub
+
+'Get all records
+Sub GetAll(resp As ServletResponse)
+    'Dim cmd As DBCommand
+    'cmd.Initialize
+    'cmd.Name = "select_all_{{model_name}}"
+    'Dim resultList As List = controller.GetAll
+    'Dim jsonData As String = ConvertToJSON(resultList)
+    'SendResponse(resp, 200, jsonData)
+    
+    'Temporary response
+    SendResponse(resp, 200, "[]")
+End Sub
+
+'Get single record by ID
+Sub GetById(id As String, resp As ServletResponse)
+    'Dim cmd As DBCommand
+    'cmd.Initialize
+    'cmd.Name = "select_{{model_name}}_by_id"
+    'cmd.Parameters = Array As Object(id)
+    'Dim record As Object = controller.GetById(id)
+    'If record <> Null Then
+    '    Dim jsonData As String = ConvertToJSON(record)
+    '    SendResponse(resp, 200, jsonData)
+    'Else
+    '    SendResponse(resp, 404, CreateErrorResponse("Record not found"))
+    'End If
+    
+    'Temporary response
+    SendResponse(resp, 200, "{}")
+End Sub
+
+'Validate create data
+Sub ValidateCreateData(data As Map) As Boolean
+    'Check required fields
+    'If data.ContainsKey("field_name") = False Then Return False
+    Return True
+End Sub
+
+'Extract ID from URL path
+Sub ExtractIdFromPath(path As String) As String
+    Dim parts() As String = path.Split("/")
+    If parts.Length > 0 Then
+        Dim lastPart As String = parts(parts.Length - 1)
+        If IsNumber(lastPart) Then
+            Return lastPart
+        End If
+    End If
+    Return ""
+End Sub
+
+'Get request body
+Sub GetRequestBody(req As ServletRequest) As String
+    Dim input As InputStream = req.InputStream
+    Dim reader As TextReader
+    reader.Initialize(input)
+    Return reader.ReadAll
+End Sub
+
+'Send HTTP response
+Sub SendResponse(resp As ServletResponse, statusCode As Int, content As String)
+    resp.Status = statusCode
+    resp.ContentType = "application/json"
+    resp.CharacterEncoding = "UTF-8"
+    If content <> "" Then
+        resp.Write(content)
+    End If
+End Sub
+
+'Create success response JSON
+Sub CreateSuccessResponse(message As String) As String
+    Dim json As JSONGenerator
+    Dim data As Map
+    data.Initialize
+    data.Put("success", True)
+    data.Put("message", message)
+    json.Initialize(data)
+    Return json.ToString
+End Sub
+
+'Create error response JSON
+Sub CreateErrorResponse(message As String) As String
+    Dim json As JSONGenerator
+    Dim data As Map
+    data.Initialize
+    data.Put("success", False)
+    data.Put("error", message)
+    json.Initialize(data)
+    Return json.ToString
+End Sub
+
+'Convert object/list to JSON
+Sub ConvertToJSON(obj As Object) As String
+    Dim json As JSONGenerator
+    json.Initialize(obj)
+    Return json.ToString
+End Sub

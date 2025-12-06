@@ -1,0 +1,173 @@
+'B4XPage for {{ModelName}} - Cross-platform UI page
+'
+'TEMPLATE PLACEHOLDERS:
+' {{ModelName}} - The model name in PascalCase (e.g., User, Product)
+' {{model_name}} - The snake_case version (e.g., user, product)
+' {{modelName}} - The camelCase version for variables (e.g., user, product)
+' {{ui_controls}} - Will be expanded to UI control declarations for each field
+' {{form_bindings}} - Will be expanded to form field bindings for each field
+'
+'TOKEN REPLACEMENT:
+' - TemplateEngine.EvaluateTemplate() replaces all {{placeholder}} tokens
+' - UI controls are generated for each model field (EditText, CheckBox, etc.)
+' - Form bindings connect UI controls to model properties
+'
+'CRUD UI OPERATIONS:
+' - B4XPage_Created() - Initialize page and load data
+' - LoadData() - Load {{ModelName}} data from controller/database
+' - SaveData() - Save form data to model
+' - ClearForm() - Reset form fields
+' - ValidateForm() - Validate form inputs
+'
+'jRDC2 INTEGRATION:
+' - Controller uses jRDC2 for backend operations
+' - Form submits to controller which persists via jRDC2
+
+Sub Class_Globals
+    Private Root As B4XView
+    Private xui As XUI
+    
+    'Controller for data operations
+    Private controller As Object
+    
+    'Current model instance
+    Private current{{ModelName}} As Object
+    
+    'UI Controls - generated from model fields
+    Private btnSave As B4XView
+    Private btnCancel As B4XView
+    Private btnDelete As B4XView
+    Private btnNew As B4XView
+{{ui_controls}}
+End Sub
+
+'Initialize the page
+Public Sub Initialize
+    'Initialization code
+End Sub
+
+'Page lifecycle - called when page is created
+Private Sub B4XPage_Created(Root1 As B4XView)
+    Root = Root1
+    Root.LoadLayout("{{model_name}}_form")
+    
+    'Initialize controller
+    'controller.Initialize
+    
+    'Load data
+    LoadData
+End Sub
+
+'Page lifecycle - called when page appears
+Private Sub B4XPage_Appear
+    'Refresh data when page appears
+    LoadData
+End Sub
+
+'Load {{ModelName}} data
+Sub LoadData
+    Try
+        'TODO: Load data from controller
+        'Dim items As List = controller.GetAll
+        'PopulateList(items)
+        
+        Log("Loading {{ModelName}} data...")
+    Catch
+        Log("Error loading data: " & LastException.Message)
+        xui.MsgboxAsync("Error loading data", "Error")
+    End Try
+End Sub
+
+'Save form data to model
+Sub SaveData
+    Try
+        If ValidateForm = False Then
+            xui.MsgboxAsync("Please fill in all required fields", "Validation Error")
+            Return
+        End If
+        
+        'Create or update model
+        If current{{ModelName}} = Null Then
+            current{{ModelName}} = {{ModelName}}
+            current{{ModelName}}.Initialize
+        End If
+        
+        'Bind form fields to model
+{{form_bindings}}
+        
+        'Save via controller
+        'Dim success As Boolean = controller.Create(current{{ModelName}})
+        'If success Then
+        '    xui.MsgboxAsync("Saved successfully", "Success")
+        '    ClearForm
+        'Else
+        '    xui.MsgboxAsync("Error saving data", "Error")
+        'End If
+        
+        Log("{{ModelName}} saved successfully")
+    Catch
+        Log("Error saving data: " & LastException.Message)
+        xui.MsgboxAsync("Error saving data: " & LastException.Message, "Error")
+    End Try
+End Sub
+
+'Clear form fields
+Sub ClearForm
+    current{{ModelName}} = Null
+    'Reset all form controls
+    'txtField.Text = ""
+End Sub
+
+'Validate form inputs
+Sub ValidateForm As Boolean
+    'TODO: Implement validation logic
+    'Check required fields
+    'Validate data types
+    'Return False if validation fails
+    Return True
+End Sub
+
+'Delete current record
+Sub DeleteData
+    Try
+        If current{{ModelName}} = Null Then
+            xui.MsgboxAsync("No record selected", "Error")
+            Return
+        End If
+        
+        Dim result As Int = xui.Msgbox2Async("Are you sure you want to delete this record?", "Confirm Delete", "Yes", "Cancel", "No", Null)
+        Wait For Msgbox_Result (Result As Int)
+        
+        If Result = xui.DialogResponse_Positive Then
+            'Dim id As Long = current{{ModelName}}.GetId
+            'Dim success As Boolean = controller.Delete(id)
+            'If success Then
+            '    xui.MsgboxAsync("Deleted successfully", "Success")
+            '    ClearForm
+            '    LoadData
+            'Else
+            '    xui.MsgboxAsync("Error deleting data", "Error")
+            'End If
+        End If
+    Catch
+        Log("Error deleting data: " & LastException.Message)
+        xui.MsgboxAsync("Error deleting data: " & LastException.Message, "Error")
+    End Try
+End Sub
+
+'Button click handlers
+Sub btnSave_Click
+    SaveData
+End Sub
+
+Sub btnCancel_Click
+    ClearForm
+End Sub
+
+Sub btnDelete_Click
+    DeleteData
+End Sub
+
+Sub btnNew_Click
+    ClearForm
+End Sub
