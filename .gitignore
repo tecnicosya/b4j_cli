@@ -1,0 +1,43 @@
+# Build output
+/bin/
+/out/
+/dist/
+*.class
+*.jar
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# B4X specific
+Objects/
+/.settings/
+.classpath
+.project
+
+# Generated code and artifacts
+/models/
+/controllers/
+/sql/
+/db/
+/templates/
+/platforms/
+/logs/
+
+# OS specific
+Thumbs.db
+.AppleDouble
+.LSOverride
+
+# Backup files
+*.bak
+*.backup
+*~
+
+# Temporary files
+.tmp/
+*.temp
