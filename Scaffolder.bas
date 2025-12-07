@@ -1,4 +1,16 @@
-B4J=true@Version=9.90@End=Sub Process_GlobalsEnd Sub
+B4J=true
+Version=9.90
+@EndOfDesignText@
+#Region  Module Attributes 
+    #ModuleVisibility: Public
+#End Region
+
+Sub Process_Globals
+End Sub
+
+Public Sub Initialize
+    Log("Scaffolder module initialized")
+End Sub
 
 Sub InitScaffolder
     Scaffolder.Initialize

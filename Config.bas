@@ -1,64 +1,97 @@
-B4J=true@Version=9.90@End=
+B4J=true
+Version=9.90
+@EndOfDesignText@
+#Region  Module Attributes 
+    #ModuleVisibility: Public
+#End Region
+
 Sub Process_Globals
+    Private configValues As Map
+    Private hasInitialized As Boolean
 End Sub
 
-Sub InitConfig
-    Config.Initialize
-    Log("Config system initialized" & CRLF)
+Public Sub Initialize
+    If hasInitialized Then Return
+    configValues = CreateDefaultConfig
+    hasInitialized = True
 End Sub
 
-Sub GetConfig As Map
-    Dim configMap As Map
-    configMap.Initialize
-    configMap.Put("modelPath", "models")
-    configMap.Put("controllerPath", "controllers")
-    configMap.Put("sqlPath", "sql")
-    configMap.Put("dbPath", "db")
-    configMap.Put("templatePath", "templates")
-    configMap.Put("platformPath", "platforms")
-    configMap.Put("dbHost", "localhost")
-    configMap.Put("dbPort", 3306)
-    configMap.Put("dbUser", "root")
-    configMap.Put("dbPassword", "")
-    configMap.Put("dbName", "scaffolder_db")
-    configMap.Put("CRLF", Chr(13) & Chr(10))
-    Return configMap
+Public Sub InitConfig
+    EnsureInitialized
+    Log("Config system initialized")
 End Sub
 
-Sub GetModelPath As String
-    Return "models"
+Public Sub GetConfig As Map
+    EnsureInitialized
+    Return configValues
 End Sub
 
-Sub GetControllerPath As String
-    Return "controllers"
+Public Sub GetModelPath As String
+    EnsureInitialized
+    Return configValues.Get("modelPath")
 End Sub
 
-Sub GetSQLPath As String
-    Return "sql"
+Public Sub GetControllerPath As String
+    EnsureInitialized
+    Return configValues.Get("controllerPath")
 End Sub
 
-Sub GetDBPath As String
-    Return "db"
+Public Sub GetSQLPath As String
+    EnsureInitialized
+    Return configValues.Get("sqlPath")
 End Sub
 
-Sub GetTemplatePath As String
-    Return "templates"
+Public Sub GetDBPath As String
+    EnsureInitialized
+    Return configValues.Get("dbPath")
 End Sub
 
-Sub GetPlatformPath As String
-    Return "platforms"
+Public Sub GetTemplatePath As String
+    EnsureInitialized
+    Return configValues.Get("templatePath")
 End Sub
 
-Sub GetRDC2ServerURL As String
-    Return "http://localhost:8080"
+Public Sub GetPlatformPath As String
+    EnsureInitialized
+    Return configValues.Get("platformPath")
 End Sub
 
-Sub GetRDC2ServiceName As String
-    Return "ScaffolderRDC"
+Public Sub GetRDC2ServerURL As String
+    EnsureInitialized
+    Return configValues.Get("rdc2ServerUrl")
 End Sub
 
-Sub GetCRLF As String
+Public Sub GetRDC2ServiceName As String
+    EnsureInitialized
+    Return configValues.Get("rdc2ServiceName")
+End Sub
+
+Public Sub GetCRLF As String
     Return Chr(13) & Chr(10)
+End Sub
+
+Private Sub EnsureInitialized
+    If hasInitialized = False Then Initialize
+End Sub
+
+Private Sub CreateDefaultConfig As Map
+    Dim defaults As Map
+    defaults.Initialize
+    defaults.Put("modelPath", "models")
+    defaults.Put("controllerPath", "controllers")
+    defaults.Put("sqlPath", "sql")
+    defaults.Put("dbPath", "db")
+    defaults.Put("templatePath", "templates")
+    defaults.Put("platformPath", "platforms")
+    defaults.Put("dbHost", "localhost")
+    defaults.Put("dbPort", 3306)
+    defaults.Put("dbUser", "root")
+    defaults.Put("dbPassword", "")
+    defaults.Put("dbName", "scaffolder_db")
+    defaults.Put("rdc2ServerUrl", "http://localhost:8080")
+    defaults.Put("rdc2ServiceName", "ScaffolderRDC")
+    defaults.Put("crlf", Chr(13) & Chr(10))
+    Return defaults
 End Sub
 
 Sub Config_Initialize

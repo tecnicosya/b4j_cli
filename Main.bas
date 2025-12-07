@@ -1,4 +1,12 @@
-B4J=true@Version=9.90@End=Sub Process_GlobalsEnd Sub
+B4J=true
+Version=9.90
+@EndOfDesignText@
+#Region  Project Attributes 
+    #CommandLineArgs:
+#End Region
+
+Sub Process_Globals
+End Sub
 
 Sub AppStart (Args() As String)
     If Args.Length = 0 Then
