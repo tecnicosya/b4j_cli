@@ -1,1 +1,75 @@
-B4J=true@Version=9.90@End=Sub Process_GlobalsEnd SubSub InitLogging    Logging.Initialize    Log("Logging system initialized")End SubSub Log(message As String)    Dim timestamp As String = DateTime.GetDate(DateTime.Now)    Dim logMessage As String = "[" & timestamp & "] [INFO] " & message    Dim wr As TextWriter    Try        Dim logFile As String = File.DirApp & "/logs/scaffolder.log"        Dim logDir As String = File.DirApp & "/logs"        If File.Exists(logDir, "") = False Then            File.MakeDir(logDir, "")        End If        wr.Initialize(logFile)        wr.WriteLine(logMessage)        wr.Close    Catch        'If file write fails, print to console        Print logMessage    End TryCatch End SubSub LogError(message As String, exception As Exception)    Dim timestamp As String = DateTime.GetDate(DateTime.Now)    Dim logMessage As String = "[" & timestamp & "] [ERROR] " & message    If exception <> Null Then        logMessage = logMessage & " - Exception: " & exception.Message    End If    Dim wr As TextWriter    Try        Dim logFile As String = File.DirApp & "/logs/scaffolder_errors.log"        Dim logDir As String = File.DirApp & "/logs"        If File.Exists(logDir, "") = False Then            File.MakeDir(logDir, "")        End If        wr.Initialize(logFile)        wr.WriteLine(logMessage)        wr.Close    Catch        'If file write fails, print to console        Print logMessage    End TryCatch End SubSub LogWarning(message As String)    Dim timestamp As String = DateTime.GetDate(DateTime.Now)    Dim logMessage As String = "[" & timestamp & "] [WARN] " & message    Dim wr As TextWriter    Try        Dim logFile As String = File.DirApp & "/logs/scaffolder.log"        Dim logDir As String = File.DirApp & "/logs"        If File.Exists(logDir, "") = False Then            File.MakeDir(logDir, "")        End If        wr.Initialize(logFile)        wr.WriteLine(logMessage)        wr.Close    Catch        Print logMessage    End TryCatch End SubSub Logging_InitializeEnd Sub
+B4J=true
+Version=9.90
+@EndOfDesignText@
+#Region  Module Attributes 
+    #ModuleVisibility: Public
+#End Region
+
+Sub Process_Globals
+    Private Const LOG_DIRECTORY As String = "logs"
+    Private Const INFO_LOG As String = "scaffolder.log"
+    Private Const ERROR_LOG As String = "scaffolder_errors.log"
+    Private hasInitialized As Boolean
+End Sub
+
+Public Sub Initialize
+    If hasInitialized Then Return
+    EnsureLogDirectory
+    hasInitialized = True
+End Sub
+
+Public Sub InitLogging
+    Initialize
+    Log("Logging system initialized")
+End Sub
+
+Public Sub Log(message As String)
+    WriteEntry(INFO_LOG, "[INFO]", message)
+End Sub
+
+Public Sub LogWarning(message As String)
+    WriteEntry(INFO_LOG, "[WARN]", message)
+End Sub
+
+Public Sub LogError(message As String, exception As Exception)
+    Dim details As String = message
+    If exception <> Null Then
+        details = details & " - Exception: " & exception.Message
+    End If
+    WriteEntry(ERROR_LOG, "[ERROR]", details)
+End Sub
+
+Private Sub WriteEntry(fileName As String, level As String, message As String)
+    Initialize
+    Dim entry As String = BuildEntry(level, message)
+    Try
+        Dim stream As OutputStream = File.OpenOutput(GetLogDir, fileName, True)
+        Dim writer As TextWriter
+        writer.Initialize(stream)
+        writer.WriteLine(entry)
+        writer.Close
+    Catch
+        Print(entry)
+    End Try
+End Sub
+
+Private Sub BuildEntry(level As String, message As String) As String
+    Dim now As Long = DateTime.Now
+    Dim datePart As String = DateTime.GetDate(now)
+    Dim timePart As String = DateTime.GetTime(now)
+    Return "[" & datePart & " " & timePart & "] " & level & " " & message
+End Sub
+
+Private Sub EnsureLogDirectory
+    If File.Exists(File.DirApp, LOG_DIRECTORY) = False Then
+        File.MakeDir(File.DirApp, LOG_DIRECTORY)
+    End If
+End Sub
+
+Private Sub GetLogDir As String
+    EnsureLogDirectory
+    Return File.DirApp & "/" & LOG_DIRECTORY
+End Sub
+
+Sub Logging_Initialize
+End Sub
