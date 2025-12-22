@@ -1,0 +1,5 @@
+# Este archivo mantiene el directorio en git
+# El directorio src/template/ contendrá los templates de UI
+# ├── views/ - Templates de vistas
+# ├── controllers/ - Templates de controladores  
+# └── contracts/ - Contratos de API

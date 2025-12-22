@@ -1,47 +1,104 @@
-# Build output
-/bin/
-/out/
-/dist/
-*.class
+# B4X Project Files
+*.b4a
+*.b4i
+*.b4j
+*.b4x
+
+# B4A specific
+*.apk
+*.aab
+*.aab-unsigned
+*.apk-unsigned
+bin/
+obj/
+res/
+assets/
+B4A/
+# Log Files
+*.log
+
+# B4i specific
+*.ipa
+*.dSYM.zip
+*.app
+B4i/
+
+# B4J specific
 *.jar
+*.class
+B4J/
 
-# IDE
-.idea/
-.vscode/
-*.swp
-*.swo
-*~
-.DS_Store
-
-# B4X specific
-Objects/
-/.settings/
-.classpath
+# IDE Files
 .project
+.classpath
+.settings/
+.metadata
+.class
 
-# Generated code and artifacts
-/models/
-/controllers/
-/sql/
-/db/
-/platforms/
-/logs/
+# B4X Libraries
+Libraries/
 
-# But keep template library (source templates, not generated)
-!/templates/
-/templates/*.html
-/templates/*.htm
-
-# OS specific
-Thumbs.db
-.AppleDouble
-.LSOverride
-
-# Backup files
-*.bak
-*.backup
-*~
+# Build directories
+build/
+dist/
+out/
 
 # Temporary files
-.tmp/
+*.tmp
 *.temp
+*.bak
+*.swp
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Environment files
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+
+# IDE specific
+*.iml
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# Android
+local.properties
+gradle/
+gradlew
+gradlew.bat
+build/
+
+# iOS
+*.mobileprovision
+*.cer
+*.p12
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# JRDC2 files
+jrdc2.cfg
+*.cfg
+
+# Generated code
+generated/
+auto-generated/
+output/
+
+# Configuration files (if contains secrets)
+config.properties
+secrets.properties
